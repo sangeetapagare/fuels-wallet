@@ -143,7 +143,7 @@ export class TxService {
     return { coinOutputs, outputsToSend, outputAmount };
   }
 
-  static async createTransfer(input: TxInputs['createTransfer']) {
+  static createTransfer(input: TxInputs['createTransfer']) {
     const request = new ScriptTransactionRequest({
       gasPrice: 0,
     });

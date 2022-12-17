@@ -2,8 +2,8 @@ import { Navigate, Route, Routes } from 'react-router-dom';
 
 import { IS_CRX, IS_CRX_POPUP } from './config';
 import { CRXPrivateRoute, CRXPublicRoute } from './systems/CRX/components';
+import { createTransactionRoutes } from './systems/CreateTransaction';
 import { dappRoutes } from './systems/DApp/routes';
-import { sendRoutes } from './systems/Send';
 import { settingsRoutes } from './systems/Settings';
 import { transactionRoutes } from './systems/Transaction/routes';
 
@@ -21,7 +21,7 @@ const walletRoutes = (
     {networkRoutes}
     {settingsRoutes}
     {dappRoutes}
-    {sendRoutes}
+    {createTransactionRoutes}
     {accountRoutes}
     {transactionRoutes}
   </>

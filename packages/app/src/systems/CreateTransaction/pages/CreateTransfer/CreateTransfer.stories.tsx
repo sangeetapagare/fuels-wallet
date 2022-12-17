@@ -1,10 +1,10 @@
-import { Send } from './Send';
+import { CreateTransfer } from './CreateTransfer';
 
 import { createMockAccount } from '~/systems/Account';
 import { NetworkService } from '~/systems/Network';
 
 export default {
-  component: Send,
+  component: CreateTransfer,
   title: 'Send/Pages/Send',
   viewport: {
     defaultViewport: 'chromeExtension',
@@ -19,7 +19,7 @@ export default {
   ],
 };
 
-export const Usage = () => <Send />;
+export const Usage = () => <CreateTransfer />;
 Usage.parameters = {
   layout: 'fullscreen',
 };

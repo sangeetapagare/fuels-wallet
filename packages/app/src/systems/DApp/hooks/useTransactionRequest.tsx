@@ -1,14 +1,20 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useInterpret, useSelector } from '@xstate/react';
+import { useNavigate } from 'react-router-dom';
 
 import type { TransactionMachineState } from '../machines/transactionMachine';
 import { transactionMachine } from '../machines/transactionMachine';
 import { useTransactionRequestMethods } from '../methods/transactionRequestMethods';
 
 import { useAccounts } from '~/systems/Account';
+import { Pages } from '~/systems/Core';
 import { getFilteredErrors, useTxOutputs } from '~/systems/Transaction';
 import type { TxInputs } from '~/systems/Transaction/services';
 
 const selectors = {
+  hasTransaction(state: TransactionMachineState) {
+    return !!state.context.tx;
+  },
   isUnlocking(state: TransactionMachineState) {
     return state.matches('unlocking');
   },
@@ -35,12 +41,15 @@ const selectors = {
     ReturnType<typeof useAccounts>,
     'handlers' | 'accounts' | 'hasBalance'
   >) {
-    return (state: TransactionMachineState) =>
-      !isLoading &&
-      !state.context.approvedTx &&
-      !state.context.txApproveError &&
-      state.context.origin &&
-      account;
+    return (state: TransactionMachineState) => {
+      return Boolean(
+        !isLoading &&
+          !state.context.approvedTx &&
+          !state.context.txApproveError &&
+          (state.context.origin || !state.context.isOriginRequired) &&
+          account
+      );
+    };
   },
 };
 
@@ -50,12 +59,20 @@ type UseTransactionRequestOpts = {
 
 export function useTransactionRequest(opts: UseTransactionRequestOpts = {}) {
   const { account, isLoading } = useAccounts();
-  const service = useInterpret(() =>
-    transactionMachine.withContext({
-      isOriginRequired: opts.isOriginRequired,
-    })
-  );
-
+  const navigate = useNavigate();
+  const service = useInterpret(() => {
+    return transactionMachine
+      .withContext({
+        isOriginRequired: !!opts.isOriginRequired,
+      })
+      .withConfig({
+        actions: {
+          navigateToHome: () => {
+            navigate(Pages.wallet());
+          },
+        },
+      } as any);
+  });
   const { send } = service;
   const ctx = useSelector(service, selectors.context);
   const isUnlocking = useSelector(service, selectors.isUnlocking);
@@ -63,6 +80,7 @@ export function useTransactionRequest(opts: UseTransactionRequestOpts = {}) {
   const waitingApproval = useSelector(service, selectors.waitingApproval);
   const sendingTx = useSelector(service, selectors.sendingTx);
   const generalErrors = useSelector(service, selectors.generalErrors);
+  const hasTransaction = useSelector(service, selectors.hasTransaction);
   const groupedErrors = ctx.txDryRunGroupedErrors;
   const hasGeneralErrors = Boolean(Object.keys(generalErrors || {}).length);
   const isShowingSelector = selectors.isShowingInfo({
@@ -111,6 +129,7 @@ export function useTransactionRequest(opts: UseTransactionRequestOpts = {}) {
     groupedErrors,
     generalErrors,
     hasGeneralErrors,
+    hasTransaction,
     ...ctx,
   };
 }

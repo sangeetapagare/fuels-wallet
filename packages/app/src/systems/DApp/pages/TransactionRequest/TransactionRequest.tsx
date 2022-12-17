@@ -1,34 +1,39 @@
 import { cssObj } from '@fuel-ui/css';
 import { Button, Flex, Heading, Link, Stack, Text } from '@fuel-ui/react';
 import { getBlockExplorerLink } from '@fuel-wallet/sdk';
+import type { Network } from '@fuel-wallet/types';
 import { AddressType } from '@fuel-wallet/types';
+import { useNavigate } from 'react-router-dom';
 
 import { ConnectInfo, UnlockDialog } from '../../components';
 import { useTransactionRequest } from '../../hooks/useTransactionRequest';
 
 import { AssetsAmount } from '~/systems/Asset';
-import { Layout } from '~/systems/Core';
+import { Layout, Pages } from '~/systems/Core';
 import { TopBarType } from '~/systems/Core/components/Layout/TopBar';
 import { NetworkScreen, useNetworks } from '~/systems/Network';
 import { TxDetails, TxErrors, TxFromTo } from '~/systems/Transaction';
 
-export function TransactionRequest() {
-  const { selectedNetwork } = useNetworks({ type: NetworkScreen.list });
-  const { handlers, ...ctx } = useTransactionRequest({
-    isOriginRequired: true,
-  });
-
-  if (!ctx.account) return null;
-
+export function TransactionRequestPage({
+  txRequest,
+  selectedNetwork,
+}: {
+  txRequest: ReturnType<typeof useTransactionRequest>;
+  selectedNetwork: Network;
+}) {
+  const navigate = useNavigate();
+  const { handlers, ...ctx } = txRequest;
   const content = (
     <Layout.Content css={styles.content}>
       {ctx.isShowingInfo && (
         <Stack gap="$4">
-          <ConnectInfo
-            origin={ctx.origin!}
-            account={ctx.account}
-            isReadOnly={true}
-          />
+          {ctx.isOriginRequired && (
+            <ConnectInfo
+              origin={ctx.origin!}
+              account={ctx.account!}
+              isReadOnly={true}
+            />
+          )}
           {ctx.account && (
             <TxFromTo
               from={{
@@ -82,14 +87,26 @@ export function TransactionRequest() {
   const footer = (
     <Layout.BottomBar>
       <Flex>
-        <Button
-          onPress={handlers.reject}
-          color="gray"
-          variant="ghost"
-          css={{ flex: 1 }}
-        >
-          Reject
-        </Button>
+        {!ctx.approvedTx && (
+          <Button
+            onPress={handlers.reject}
+            color="gray"
+            variant="ghost"
+            css={{ flex: 1 }}
+          >
+            Reject
+          </Button>
+        )}
+        {ctx.approvedTx && (
+          <Button
+            onPress={() => navigate(Pages.wallet())}
+            color="gray"
+            variant="ghost"
+            css={{ flex: 1 }}
+          >
+            Go to wallet
+          </Button>
+        )}
         {!ctx.approvedTx && !ctx.txApproveError && (
           <Button
             color="accent"
@@ -122,6 +139,22 @@ export function TransactionRequest() {
         onClose={handlers.closeUnlock}
       />
     </>
+  );
+}
+
+export function TransactionRequest() {
+  const { selectedNetwork } = useNetworks({ type: NetworkScreen.list });
+  const txRequest = useTransactionRequest({
+    isOriginRequired: true,
+  });
+
+  if (!txRequest.account) return null;
+
+  return (
+    <TransactionRequestPage
+      selectedNetwork={selectedNetwork}
+      txRequest={txRequest}
+    />
   );
 }
 

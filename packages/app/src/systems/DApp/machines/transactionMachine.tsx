@@ -177,7 +177,9 @@ export const transactionMachine = createMachine(
       done: {
         type: 'final',
       },
-      failed: {},
+      failed: {
+        entry: ['navigateToHome'],
+      },
     },
     on: {
       REJECT: {
@@ -229,6 +231,7 @@ export const transactionMachine = createMachine(
       assignFee: assign({
         fee: (_, ev) => ev.data,
       }),
+      navigateToHome() {},
     },
     services: {
       fetchGasPrice: FetchMachine.create<TxInputs['fetchGasPrice'], BN>({
