@@ -1,5 +1,13 @@
 # @fuel-wallet/sdk
 
+## 0.3.1
+
+### Patch Changes
+
+- [#440](https://github.com/FuelLabs/fuels-wallet/pull/440) [`d626c72`](https://github.com/FuelLabs/fuels-wallet/commit/d626c723af7449e4298cacc66b71b095cce24f82) Thanks [@luizstacio](https://github.com/luizstacio)! - Add utils to create address on fuel sdk
+
+- [#399](https://github.com/FuelLabs/fuels-wallet/pull/399) [`f7c690f`](https://github.com/FuelLabs/fuels-wallet/commit/f7c690f299e9c6c6bbcac448760996ba6b116c96) Thanks [@pedronauck](https://github.com/pedronauck)! - Chore(sdk): small adjustments to adapt to connection service
+
 ## 0.3.0
 
 ### Minor Changes
